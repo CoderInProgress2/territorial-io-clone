@@ -2,5 +2,286 @@
 <html>
   <head>
     <title>Territorial.io Clone</title>
+    <style>
+      .map {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 4px;
+  background-color: #f1f1f1;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  flex: 1;
+  padding: 10px;
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.player1 {
+  background-color: #ff0000;
+}
+
+.player2 {
+  background-color: #0000ff;
+}
+
+.status {
+  margin-top: 20px;
+}
+
+.turn-indicator {
+  font-weight: bold;
+}
+
+.percentage-counter {
+  margin-top: 10px;
+}
+      .turn-indicator {
+        font-weight: bold;
+    </style>
   </head>
-  
+  <body>
+    <div class="map">
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+    </div>
+    <div class="status">
+      <div class="turn-indicator"></div>
+      <div class="percentage-counter"></div>
+    </div>
+    <script>
+     const territoryElements = document.querySelectorAll('.cell');
+const territoryOwners = new Map();
+let currentPlayer = 'player1';
+let turns = 0;
+
+territoryElements.forEach(territory => {
+  territory.addEventListener('click', () => {
+    if (territoryOwners.has(territory)) {
+      console.log(`Territory is already owned by ${territoryOwners.get(territory)}`);
+      return;
+    }
+
+    const adjacentTerritories = getAdjacentTerritories(territory);
+    const currentPlayerTerritories = getTerritoriesForPlayer(currentPlayer);
+
+    if (!isAdjacentToOwnTerritory(adjacentTerritories, currentPlayerTerritories)) {
+      console.log('Cannot attack. The territory is not adjacent to your own.');
+      return;
+    }
+
+    const outcome = Math.random() < 0.5 ? 'success' : 'failure';
+
+    if (outcome === 'success') {
+      territoryOwners.set(territory, currentPlayer);
+      territory.classList.add(currentPlayer);
+      console.log(`Attack successful! Territory is now owned by ${currentPlayer}`);
+    } else {
+      console.log('Attack failed! Territory remains unclaimed.');
+    }
+
+    currentPlayer = currentPlayer === 'player1' ? 'player2' : 'player1';
+    turns++;
+
+    if (checkEndConditions()) {
+      endGame();
+    } else {
+      updateTurnIndicator();
+      updatePercentageCounter();
+    }
+  });
+});
+
+function getAdjacentTerritories(territory) {
+  const rowIndex = Array.from(territory.parentNode.children).indexOf(territory.parentElement);
+  const cellIndex = Array.from(territory.parentElement.children).indexOf(territory);
+
+  const adjacentTerritories = [];
+
+  for (let i = rowIndex - 1; i <= rowIndex + 1; i++) {
+    for (let j = cellIndex - 1; j <= cellIndex + 1; j++) {
+      const row = territory.parentElement.parentElement.children[i];
+      if (row && row.children[j] && row.children[j] !== territory) {
+        adjacentTerritories.push(row.children[j]);
+      }
+    }
+  }
+
+  return adjacentTerritories;
+}
+
+function getTerritoriesForPlayer(player) {
+  const territories = [];
+  territoryOwners.forEach((owner, territory) => {
+    if (owner === player) {
+      territories.push(territory);
+    }
+  });
+  return territories;
+}
+
+function isAdjacentToOwnTerritory(adjacentTerritories, currentPlayerTerritories) {
+  return adjacentTerritories.some(adjacentTerritory =>
+    currentPlayerTerritories.includes(adjacentTerritory)
+  );
+}
+
+function checkEndConditions() {
+  const totalTerritories = territoryElements.length;
+  const currentPlayerTerritories = getTerritoriesForPlayer(currentPlayer);
+  const currentPlayerPercentage = (currentPlayerTerritories.length / totalTerritories) * 100;
+
+  if (currentPlayerPercentage >= 100) {
+    return true;
+  }
+
+  const maxTurns = 20;
+  if (turns >= maxTurns) {
+    return true;
+  }
+
+  return false;
+}
+
+function endGame() {
+  console.log(`Game over! ${currentPlayer} wins.`);
+  territoryElements.forEach(territory => territory.removeEventListener('click', handleClick));
+}
+
+function updateTurnIndicator() {
+  const turnIndicator = document.querySelector('.turn-indicator');
+  turnIndicator.textContent = `Current Turn: ${turns}`;
+}
+
+function updatePercentageCounter() {
+  const percentageCounter = document.querySelector('.percentage-counter');
+  const totalTerritories = territoryElements.length;
+  const currentPlayerTerritories = getTerritoriesForPlayer(currentPlayer);
+  const currentPlayerPercentage = (currentPlayerTerritories.length / totalTerritories) * 100;
+  percentageCounter.textContent = `Current Percentage: ${currentPlayerPercentage.toFixed(2)}%`;
+}
+    </script>
+  </body>
+</html>
